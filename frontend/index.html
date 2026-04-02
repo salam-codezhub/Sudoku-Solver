@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sudoku Solver</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,300&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Background grid decoration -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-grid" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </span>
+        <span class="logo-text">Sudoku<em>Solver</em></span>
+      </div>
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="manual" role="tab" aria-selected="true">Manual Input</button>
+        <button class="tab-btn" data-tab="image" role="tab" aria-selected="false">Image Upload</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+
+    <!-- ── LEFT PANEL ── -->
+    <section class="panel panel--input" aria-label="Input panel">
+
+      <!-- Size selector -->
+      <div class="size-row">
+        <label class="size-label">Grid Size</label>
+        <div class="size-pills">
+          <button class="pill" data-size="4">4×4</button>
+          <button class="pill" data-size="6">6×6</button>
+          <button class="pill active" data-size="9">9×9</button>
+          <button class="pill" data-size="16">16×16</button>
+        </div>
+      </div>
+
+      <!-- Manual input tab -->
+      <div id="tab-manual" class="tab-content active" role="tabpanel">
+        <div class="grid-wrap">
+          <div id="input-grid" class="sudoku-grid" data-size="9"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn--ghost" id="btn-clear">Clear</button>
+          <button class="btn btn--ghost" id="btn-example">Load Example</button>
+          <button class="btn btn--primary" id="btn-solve-manual">
+            <span class="btn-label">Solve</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Image upload tab -->
+      <div id="tab-image" class="tab-content" role="tabpanel">
+        <label class="drop-zone" id="drop-zone" for="file-input">
+          <div class="drop-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 4v28M14 14l10-10 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 34v6a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2v-6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drop image here</p>
+          <p class="drop-sub">or <span class="drop-link">browse files</span></p>
+          <p class="drop-hint">JPEG / PNG · max 10 MB</p>
+          <input type="file" id="file-input" accept="image/jpeg,image/png" class="sr-only" />
+        </label>
+        <div id="image-preview-wrap" class="image-preview-wrap hidden">
+          <img id="image-preview" src="" alt="Uploaded puzzle preview" />
+          <button class="preview-remove" id="btn-remove-image" aria-label="Remove image">✕</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn--primary" id="btn-solve-image" disabled>
+            <span class="btn-label">Solve Image</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── RIGHT PANEL ── -->
+    <section class="panel panel--result" aria-label="Results panel" id="result-panel">
+
+      <div id="result-empty" class="result-empty">
+        <div class="empty-graphic" aria-hidden="true">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="8" width="64" height="64" rx="4" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="40" y="46" text-anchor="middle" fill="currentColor" font-size="24" font-family="DM Mono">?</text>
+          </svg>
+        </div>
+        <p>Enter a puzzle and press <strong>Solve</strong> to see the solution here.</p>
+      </div>
+
+      <div id="result-content" class="result-content hidden">
+
+        <!-- Badge row -->
+        <div class="result-meta">
+          <span class="difficulty-badge" id="difficulty-badge">—</span>
+          <span class="meta-stat" id="meta-steps">—</span>
+          <span class="meta-stat" id="meta-bt">—</span>
+        </div>
+
+        <!-- Solved grid -->
+        <div class="grid-wrap">
+          <div id="solution-grid" class="sudoku-grid sudoku-grid--solution" data-size="9"></div>
+        </div>
+
+        <!-- Steps toggle -->
+        <details class="steps-details" id="steps-details">
+          <summary class="steps-summary">
+            Step-by-step trace
+            <span class="steps-count" id="steps-count"></span>
+            <span class="steps-chevron" aria-hidden="true">›</span>
+          </summary>
+          <div class="steps-list" id="steps-list"></div>
+        </details>
+
+      </div>
+
+      <!-- Error state -->
+      <div id="result-error" class="result-error hidden">
+        <p class="error-icon" aria-hidden="true">⚠</p>
+        <p class="error-msg" id="error-msg"></p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>AI-based Sudoku Solver · FastAPI + OpenCV + Pytesseract</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
